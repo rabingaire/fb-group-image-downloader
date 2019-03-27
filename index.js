@@ -1,14 +1,11 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
 const axios = require('axios');
+const { dirname, filePath, myUrl } = require('./url');
 
-const dirname = 'images';
-const filePath = `${dirname}/:fileName.jpg`;
+require('dotenv').config();
 
-const accessToken =
-  'EAAZAy5SWtTFQBAElHrghMYyD5CNv6mNQO27fP4CxkhnaGnhGZBlo1Kd1dxjqOWXD6hMNSDnVPEa68wzUQke7H12RF3qlXmupn6ZBZCdsvKxyiVZAWJTW8fP9bHZAVUGStmKNc1Vor1Y7TU6G8KZB0yMQwN4H0qAnStqgaakDfwVFQZDZD';
-
-let apiUrl = `https://graph.facebook.com/v3.2/1081830048494691/feed?limit=100&access_token=${accessToken}&debug=all&fields=full_picture&format=json&method=get&pretty=0&suppress_http_code=1`;
+let apiUrl = myUrl;
 
 let counter = 0;
 

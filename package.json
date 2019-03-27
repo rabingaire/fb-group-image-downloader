@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.18.0",
+    "dotenv": "^7.0.0",
     "fs": "^0.0.1-security",
     "node-fetch": "^2.3.0"
   }
