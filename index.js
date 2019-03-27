@@ -1,6 +1,6 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
-const request = require('request');
+const axios = require('axios');
 
 const dirname = 'images';
 const filePath = `${dirname}/:fileName.jpg`;
@@ -24,11 +24,13 @@ const fetchApi = (uri, callback) => {
         if (!data.hasOwnProperty('full_picture')) {
           return;
         }
-        downloadImage(
-          data.full_picture,
-          filePath.replace(':fileName', data.id),
-          callback
-        );
+        downloadImage(data.full_picture, filePath.replace(':fileName', data.id))
+          .then(() => {
+            callback();
+          })
+          .catch(error => {
+            console.log(error);
+          });
       });
 
       if (!json.hasOwnProperty('paging')) {
@@ -42,11 +44,22 @@ const fetchApi = (uri, callback) => {
     });
 };
 
-const downloadImage = (url, filePath, callback) => {
-  request(url)
-    .pipe(fs.createWriteStream(filePath))
-    .on('close', callback);
-};
+async function downloadImage(url, filePath) {
+  const writer = fs.createWriteStream(filePath);
+
+  const response = await axios({
+    url,
+    method: 'GET',
+    responseType: 'stream'
+  });
+
+  response.data.pipe(writer);
+
+  return new Promise((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+}
 
 const logger = () => {
   counter++;
