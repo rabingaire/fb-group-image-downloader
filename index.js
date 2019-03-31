@@ -1,27 +1,29 @@
-const fs = require('fs');
-const fetch = require('node-fetch');
-const axios = require('axios');
-const { dirname, filePath, myUrl } = require('./url');
+const fs = require("fs");
+const axios = require("axios");
+const { dirname, filePath, myUrl } = require("./url");
 
-require('dotenv').config();
+require("dotenv").config();
 
 let apiUrl = myUrl;
 
 let counter = 0;
 
-const fetchApi = (uri, callback) => {
-  fetch(uri)
-    .then(res => res.json())
+const fetchApi = (url, callback) => {
+  axios({
+    url,
+    method: "GET"
+  })
+    .then(response => response.data)
     .then(json => {
-      if (!json.hasOwnProperty('data')) {
+      if (!json.hasOwnProperty("data")) {
         return;
       }
 
       json.data.map(data => {
-        if (!data.hasOwnProperty('full_picture')) {
+        if (!data.hasOwnProperty("full_picture")) {
           return;
         }
-        downloadImage(data.full_picture, filePath.replace(':fileName', data.id))
+        downloadImage(data.full_picture, filePath.replace(":fileName", data.id))
           .then(() => {
             callback();
           })
@@ -30,14 +32,17 @@ const fetchApi = (uri, callback) => {
           });
       });
 
-      if (!json.hasOwnProperty('paging')) {
+      if (!json.hasOwnProperty("paging")) {
         return;
       }
 
-      if (!json.paging.hasOwnProperty('next')) {
+      if (!json.paging.hasOwnProperty("next")) {
         return;
       }
       fetchApi(json.paging.next, logger);
+    })
+    .catch(error => {
+      console.log(error);
     });
 };
 
@@ -46,15 +51,15 @@ async function downloadImage(url, filePath) {
 
   const response = await axios({
     url,
-    method: 'GET',
-    responseType: 'stream'
+    method: "GET",
+    responseType: "stream"
   });
 
   response.data.pipe(writer);
 
   return new Promise((resolve, reject) => {
-    writer.on('finish', resolve);
-    writer.on('error', reject);
+    writer.on("finish", resolve);
+    writer.on("error", reject);
   });
 }
 
